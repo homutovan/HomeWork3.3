@@ -1,6 +1,6 @@
 import requests
 from pprint import pprint
-import webbrowser
+import time
 
 try:
     from secret import TOKEN
@@ -15,7 +15,9 @@ class User:
         self.user_id = user_id
         self.token = token
         
-    def get_params(self):         
+    def get_params(self):
+        print('Запрос к API VK')
+        time.sleep(0.4)        
         return dict(
             access_token = self.token,
             user_id = self.user_id,
@@ -30,7 +32,7 @@ class User:
         return response.json()['response']['items']
     
     def friends_set(self):
-        return set(friend['id'] for friend in User.get_friends(self))
+        return set(friend['id'] for friend in self.get_friends())
     
     def get_info(self):
         params = self.get_params()
@@ -38,13 +40,13 @@ class User:
         return response.json()['response'][0]
         
     def __and__(self, other):
-        return list(User(friend, TOKEN) for friend in (User.friends_set(self) & User.friends_set(other)))
+        return list(User(friend, TOKEN) for friend in (self.friends_set() & other.friends_set()))
     
     def __str__(self):
-        return f"https://vk.com/{User.get_info(self)['domain']}"
+        return f"https://vk.com/{self.get_info()['domain']}"
     
     def __repr__(self):
-        return f"https://vk.com/{User.get_info(self)['domain']}"
+        return f"https://vk.com/{self.get_info()['domain']}"
 
 USER_ID = '2453810'
 USER_ID2 = '160117406'
